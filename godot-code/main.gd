@@ -10,7 +10,7 @@ var multiplayer_bridge : NakamaMultiplayerBridge
 var start_game_count : int = 0
 var match_id : String = ""
 var godot_port : int = -1
-
+var match_id_for_client : String = ""
 
 # Called when the node enters the scene tree for the first time.
 func _ready() -> void:
@@ -42,9 +42,10 @@ func _ready() -> void:
 				timer.one_shot = false
 				timer.timeout.connect(func():
 					var matches = await client.list_matches_async(session, 0,10,10,false,"","")
-					print("matches: ", matches)
+					#print("matches: ", matches)
 				)
 				timer.start()
+				
 				
 
 
@@ -85,10 +86,12 @@ func _on_match_joined() -> void:
 	PlayerManager.set_my_peer_id(multiplayer.get_unique_id())
 	print(multiplayer_bridge.match_id)
 	print("Match joined.")
-	await get_tree().create_timer(2.0).timeout
 	if match_id != "":
+		await get_tree().create_timer(2.0).timeout
 		set_host_peer_id.rpc(multiplayer.get_unique_id())
 		start_game.rpc()
+	match_id_for_client = multiplayer_bridge.match_id
+	print("match id for client: ", match_id_for_client)
 
 func _on_peer_connected(peer_id) -> void:
 	PlayerManager.add_player(peer_id)
@@ -100,7 +103,13 @@ func _on_peer_disconnected(peer_id) -> void:
 
 
 func _on_cj_match_button_pressed() -> void:
-	multiplayer_bridge.join_named_match($CanvasLayer/Panel2/MatchNameLineEdit.text)
+	#multiplayer_bridge.join_named_match($CanvasLayer/Panel2/MatchNameLineEdit.text)
+	var result :NakamaAsyncResult = await socket.rpc_async("rpcCreateMatch", JSON.stringify({"match_name":$CanvasLayer/Panel2/MatchNameLineEdit.text}))
+	print("result: ", result.payload)
+	match_id_for_client = JSON.parse_string(result.payload).matchId
+	var result2 = await socket.join_match_async(match_id_for_client)
+	print("result: ", match_id_for_client)
+	print("Result2: ", result2)
 	
 
 @rpc("any_peer")
@@ -113,7 +122,10 @@ func sync_player_list(players : Array[int]) -> void:
 
 
 func _on_start_button_pressed() -> void:
-	start_game.rpc()
+	#start_game.rpc()
+	print("match id for client: ", match_id_for_client)
+	socket.send_match_state_async(match_id_for_client, 0, JSON.stringify({"statue":"start"}))
+	pass
 
 
 @rpc("any_peer", "call_local")
