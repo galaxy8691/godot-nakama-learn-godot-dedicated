@@ -9,6 +9,7 @@ var socket : NakamaSocket
 var multiplayer_bridge : NakamaMultiplayerBridge
 var start_game_count : int = 0
 var match_id : String = ""
+var godot_port : int = -1
 
 
 # Called when the node enters the scene tree for the first time.
@@ -19,10 +20,31 @@ func _ready() -> void:
 	socket.closed.connect(self._on_socket_closed)
 	socket.received_error.connect(self._on_socket_error)
 	if "--server" in OS.get_cmdline_args():
+		var email = "test3@test.com"
+		var password = "password"
+		session = await client.authenticate_email_async(email, password)
+		$CanvasLayer.visible = false
 		for arg in OS.get_cmdline_args():
-			if arg.begins_with("--matchid="):
-				match_id = arg.split("=")[1]
-				set_host()
+			if arg.begins_with("--port="):
+				godot_port = int(arg.split("=")[1])
+				print("godot port: ", godot_port)
+				var json =  JSON.stringify({
+					"ip": ip,
+					"port": str(godot_port)
+				})
+				print("json: ", json)
+				var result = await client.rpc_async(session, "tellNakamaIamAServer", json)
+				print("result: ", result)
+				var timer = Timer.new()
+				timer.autostart = true
+				add_child(timer)
+				timer.wait_time = 1.0
+				timer.one_shot = false
+				timer.timeout.connect(func():
+					var matches = await client.list_matches_async(session, 0,10,10,false,"","")
+					print("matches: ", matches)
+				)
+				timer.start()
 				
 
 
