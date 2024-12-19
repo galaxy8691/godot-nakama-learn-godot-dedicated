@@ -124,7 +124,7 @@ func sync_player_list(players : Array[int]) -> void:
 func _on_start_button_pressed() -> void:
 	#start_game.rpc()
 	print("match id for client: ", match_id_for_client)
-	socket.send_match_state_async(match_id_for_client, 0, JSON.stringify({"statue":"start"}))
+	socket.send_match_state_async(match_id_for_client, 0, JSON.stringify({"state":"start"}))
 	pass
 
 
