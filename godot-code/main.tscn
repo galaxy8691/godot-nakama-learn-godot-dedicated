@@ -1,0 +1,152 @@
+[gd_scene load_steps=3 format=3 uid="uid://djcqpov4xo7kw"]
+
+[ext_resource type="Script" path="res://main.gd" id="1_1bn4v"]
+[ext_resource type="PackedScene" uid="uid://d3x8n863005kh" path="res://player.tscn" id="2_0dx04"]
+
+[node name="Main" type="Node"]
+script = ExtResource("1_1bn4v")
+
+[node name="Game" type="Node2D" parent="."]
+visible = false
+
+[node name="Player1" parent="Game" instance=ExtResource("2_0dx04")]
+position = Vector2(244, 319)
+
+[node name="Player2" parent="Game" instance=ExtResource("2_0dx04")]
+position = Vector2(857, 321)
+
+[node name="CanvasLayer" type="CanvasLayer" parent="."]
+
+[node name="Panel" type="Panel" parent="CanvasLayer"]
+offset_left = 98.0
+offset_top = 75.0
+offset_right = 726.0
+offset_bottom = 285.0
+
+[node name="EmailLabel" type="Label" parent="CanvasLayer/Panel"]
+layout_mode = 0
+offset_left = 92.0
+offset_top = 29.0
+offset_right = 135.0
+offset_bottom = 52.0
+text = "Email
+"
+
+[node name="EmailLineEdit" type="LineEdit" parent="CanvasLayer/Panel"]
+layout_mode = 0
+offset_left = 188.0
+offset_top = 27.0
+offset_right = 354.0
+offset_bottom = 58.0
+text = "test1@test.com"
+
+[node name="PasswordLabel" type="Label" parent="CanvasLayer/Panel"]
+layout_mode = 0
+offset_left = 92.0
+offset_top = 70.0
+offset_right = 135.0
+offset_bottom = 93.0
+text = "Password
+"
+
+[node name="PasswordLineEdit" type="LineEdit" parent="CanvasLayer/Panel"]
+layout_mode = 0
+offset_left = 188.0
+offset_top = 68.0
+offset_right = 354.0
+offset_bottom = 99.0
+text = "password"
+
+[node name="LoginButton" type="Button" parent="CanvasLayer/Panel"]
+layout_mode = 0
+offset_left = 96.0
+offset_top = 134.0
+offset_right = 146.0
+offset_bottom = 165.0
+text = "Login
+"
+
+[node name="LoginTest1Button" type="Button" parent="CanvasLayer/Panel"]
+layout_mode = 0
+offset_left = 449.0
+offset_top = 26.0
+offset_right = 541.0
+offset_bottom = 57.0
+text = "LoginTest1
+"
+
+[node name="LoginTest2Button" type="Button" parent="CanvasLayer/Panel"]
+layout_mode = 0
+offset_left = 452.0
+offset_top = 81.0
+offset_right = 544.0
+offset_bottom = 112.0
+text = "LoginTest2
+"
+
+[node name="LoginTest3Button" type="Button" parent="CanvasLayer/Panel"]
+layout_mode = 0
+offset_left = 453.0
+offset_top = 135.0
+offset_right = 545.0
+offset_bottom = 166.0
+text = "LoginTest3
+"
+
+[node name="Panel2" type="Panel" parent="CanvasLayer"]
+offset_left = 103.0
+offset_top = 321.0
+offset_right = 726.0
+offset_bottom = 602.0
+
+[node name="Label" type="Label" parent="CanvasLayer/Panel2"]
+layout_mode = 0
+offset_left = 97.0
+offset_top = 47.0
+offset_right = 137.0
+offset_bottom = 70.0
+text = "Match Name
+"
+
+[node name="MatchNameLineEdit" type="LineEdit" parent="CanvasLayer/Panel2"]
+layout_mode = 0
+offset_left = 215.0
+offset_top = 45.0
+offset_right = 340.0
+offset_bottom = 76.0
+text = "test"
+
+[node name="CJMatchButton" type="Button" parent="CanvasLayer/Panel2"]
+layout_mode = 0
+offset_left = 230.0
+offset_top = 116.0
+offset_right = 325.0
+offset_bottom = 147.0
+text = "Create/Join
+"
+
+[node name="StartButton" type="Button" parent="CanvasLayer/Panel2"]
+layout_mode = 0
+offset_left = 422.0
+offset_top = 114.0
+offset_right = 468.0
+offset_bottom = 145.0
+text = "Start
+"
+
+[node name="HostButton" type="Button" parent="CanvasLayer/Panel2"]
+layout_mode = 0
+offset_left = 231.0
+offset_top = 169.0
+offset_right = 275.0
+offset_bottom = 200.0
+text = "Host
+"
+
+[connection signal="pressed" from="CanvasLayer/Panel/LoginButton" to="." method="_on_login_button_pressed"]
+[connection signal="pressed" from="CanvasLayer/Panel/LoginTest1Button" to="." method="_on_login_test_1_button_pressed"]
+[connection signal="pressed" from="CanvasLayer/Panel/LoginTest2Button" to="." method="_on_login_test_2_button_pressed"]
+[connection signal="pressed" from="CanvasLayer/Panel/LoginTest3Button" to="." method="_on_login_test_3_button_pressed"]
+[connection signal="pressed" from="CanvasLayer/Panel2/CJMatchButton" to="." method="_on_cj_match_button_pressed"]
+[connection signal="pressed" from="CanvasLayer/Panel2/StartButton" to="." method="_on_start_button_pressed"]
+[connection signal="pressed" from="CanvasLayer/Panel2/HostButton" to="." method="_on_host_button_pressed"]

@@ -1,0 +1,7 @@
+# Godot 4+ specific ignores
+.godot/
+/android/
+godot-learn-mp.pck
+godot-learn-mp.console.exe
+godot-learn-mp.exe
+export_presets.cfg
