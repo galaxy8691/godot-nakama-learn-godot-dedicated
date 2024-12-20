@@ -58,12 +58,12 @@ You can use the code in this project as a template to create your own game. In f
 
 ```bash
 git clone https://github.com/galaxy8691/godot-nakama-learn-godot-dedicated
-cd project-name
+cd godot-nakama-learn-godot-dedicated
 ```
 
 2. **Configure Nakama Server**
 
-   - Install Nakama following the [official guide](https://heroiclabs.com/docs/install-nakama/)
+   - Install Nakama following the [official guide](https://heroiclabs.com/docs/nakama/getting-started/install/)
    - Deploy TypeScript code from `nakama-code/`
    - Start Nakama server
 
@@ -173,12 +173,12 @@ This project is licensed under the MIT License. See [LICENSE.md](LICENSE.md) for
 
 ```bash
 git clone https://github.com/galaxy8691/godot-nakama-learn-godot-dedicated
-cd project-name
+cd godot-nakama-learn-godot-dedicated
 ```
 
 2. **配置 Nakama 服务器**
 
-   - 按照[官方指南](https://heroiclabs.com/docs/install-nakama/)安装 Nakama
+   - 按照[官方指南](https://heroiclabs.com/docs/nakama/getting-started/install/)安装 Nakama
    - 部署 `nakama-code/` 中的 TypeScript 代码
    - 启动 Nakama 服务器
 
