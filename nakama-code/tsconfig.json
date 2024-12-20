@@ -1,0 +1,13 @@
+{
+  "files": ["./src/main.ts", "./src/match.ts", "./src/constants.ts"],
+
+  "compilerOptions": {
+    "target": "es5",
+    "esModuleInterop": true,
+    "forceConsistentCasingInFileNames": true,
+    "strict": true,
+    "skipLibCheck": true,
+    "typeRoots": ["./node_modules"],
+    "outFile": "./build/index.js"
+  }
+}

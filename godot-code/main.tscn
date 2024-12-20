@@ -151,6 +151,15 @@ offset_bottom = 128.0
 text = "Join
 "
 
+[node name="ServerJoinButton" type="Button" parent="CanvasLayer/Panel2"]
+visible = false
+layout_mode = 0
+offset_left = 97.0
+offset_top = 171.0
+offset_right = 184.0
+offset_bottom = 202.0
+text = "ServerJoin"
+
 [connection signal="pressed" from="CanvasLayer/Panel/LoginButton" to="." method="_on_login_button_pressed"]
 [connection signal="pressed" from="CanvasLayer/Panel/LoginTest1Button" to="." method="_on_login_test_1_button_pressed"]
 [connection signal="pressed" from="CanvasLayer/Panel/LoginTest2Button" to="." method="_on_login_test_2_button_pressed"]
@@ -159,3 +168,4 @@ text = "Join
 [connection signal="pressed" from="CanvasLayer/Panel2/StartButton" to="." method="_on_start_button_pressed"]
 [connection signal="pressed" from="CanvasLayer/Panel2/HostButton" to="." method="_on_host_button_pressed"]
 [connection signal="pressed" from="CanvasLayer/Panel2/JoinButton" to="." method="_on_join_button_pressed"]
+[connection signal="pressed" from="CanvasLayer/Panel2/ServerJoinButton" to="." method="_on_server_join_button_pressed"]

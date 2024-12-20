@@ -26,6 +26,7 @@ func _ready() -> void:
 		# var password = "password"
 		# session = await client.authenticate_email_async(email, password)
 		$CanvasLayer.visible = false
+		$CanvasLayer/Panel2/ServerJoinButton.visible = true
 		for arg in OS.get_cmdline_args():
 			if arg.begins_with("--email="):
 				email = arg.split("=")[1]
@@ -40,6 +41,7 @@ func _ready() -> void:
 				print("godot port: ", godot_port)
 
 			if session != null and godot_port != -1: 
+				await socket.connect_async(session)
 				var json =  JSON.stringify({
 					"ip": ip,
 					"port": str(godot_port)
@@ -50,11 +52,12 @@ func _ready() -> void:
 				var timer = Timer.new()
 				timer.autostart = true
 				add_child(timer)
-				timer.wait_time = 1.0
+				timer.wait_time = 10.0
 				timer.one_shot = false
 				timer.timeout.connect(func():
 					var resulta = await client.rpc_async(session, "tellNakamaIamAServer", json)
-					print("resulta: ", resulta)
+					#print("resulta: ", resulta)
+					pass
 				)
 				timer.start()
 				var job_timer = Timer.new()
@@ -248,3 +251,12 @@ func _on_join_button_pressed() -> void:
 	await socket.join_match_async(match_id_for_client)
 	$CanvasLayer/Panel2/CJMatchButton.disabled = true
 	$CanvasLayer/Panel2/JoinButton.disabled = true
+
+
+func _on_server_join_button_pressed() -> void:
+	var job_result = await client.rpc_async(session, "rpcGetJob", "{}")
+	var job_result_json = JSON.parse_string(job_result.payload)
+	match_id = $CanvasLayer/Panel2/MatchNameLineEdit.text
+	await socket.join_match_async(match_id)
+	var resultx = await socket.join_match_async(match_id)
+	print("result: ", resultx)
