@@ -11,6 +11,8 @@ var start_game_count : int = 0
 var match_id : String = ""
 var godot_port : int = -1
 var match_id_for_client : String = ""
+var email : String = ""
+var password : String = ""
 
 # Called when the node enters the scene tree for the first time.
 func _ready() -> void:
@@ -20,14 +22,24 @@ func _ready() -> void:
 	socket.closed.connect(self._on_socket_closed)
 	socket.received_error.connect(self._on_socket_error)
 	if "--server" in OS.get_cmdline_args():
-		var email = "test3@test.com"
-		var password = "password"
-		session = await client.authenticate_email_async(email, password)
+		# var email = "test3@test.com"
+		# var password = "password"
+		# session = await client.authenticate_email_async(email, password)
 		$CanvasLayer.visible = false
 		for arg in OS.get_cmdline_args():
+			if arg.begins_with("--email="):
+				email = arg.split("=")[1]
+				print("email: ", email)
+			if arg.begins_with("--password="):
+				password = arg.split("=")[1]
+				print("password: ", password)
+			if session == null and email != "" and password != "":
+				session = await client.authenticate_email_async(email, password)
 			if arg.begins_with("--port="):
 				godot_port = int(arg.split("=")[1])
 				print("godot port: ", godot_port)
+
+			if session != null and godot_port != -1: 
 				var json =  JSON.stringify({
 					"ip": ip,
 					"port": str(godot_port)
@@ -104,12 +116,17 @@ func _on_peer_disconnected(peer_id) -> void:
 
 func _on_cj_match_button_pressed() -> void:
 	#multiplayer_bridge.join_named_match($CanvasLayer/Panel2/MatchNameLineEdit.text)
-	var result :NakamaAsyncResult = await socket.rpc_async("rpcCreateMatch", JSON.stringify({"match_name":$CanvasLayer/Panel2/MatchNameLineEdit.text}))
+	var result :NakamaAsyncResult = await socket.rpc_async("rpcCreateMatch", JSON.stringify({}))
 	print("result: ", result.payload)
 	match_id_for_client = JSON.parse_string(result.payload).matchId
-	var result2 = await socket.join_match_async(match_id_for_client)
-	print("result: ", match_id_for_client)
-	print("Result2: ", result2)
+	await socket.join_match_async(match_id_for_client)
+	$CanvasLayer/Panel2/MatchNameLineEdit.editable = false
+	$CanvasLayer/Panel2/MatchNameLineEdit.text = str(match_id_for_client)
+	$CanvasLayer/Panel2/CJMatchButton.disabled = true
+	$CanvasLayer/Panel2/JoinButton.disabled = true
+	
+	# print("result: ", match_id_for_client)
+	# print("Result2: ", result2)
 	
 
 @rpc("any_peer")
@@ -208,3 +225,8 @@ func set_host():
 	if match_id != "":
 		multiplayer_bridge.join_match(match_id)
 		
+func _on_join_button_pressed() -> void:
+	match_id_for_client = $CanvasLayer/Panel2/MatchNameLineEdit.text
+	await socket.join_match_async(match_id_for_client)
+	$CanvasLayer/Panel2/CJMatchButton.disabled = true
+	$CanvasLayer/Panel2/JoinButton.disabled = true

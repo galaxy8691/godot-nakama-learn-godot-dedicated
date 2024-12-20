@@ -105,24 +105,23 @@ offset_left = 97.0
 offset_top = 47.0
 offset_right = 137.0
 offset_bottom = 70.0
-text = "Match Name
+text = "Match ID
 "
 
 [node name="MatchNameLineEdit" type="LineEdit" parent="CanvasLayer/Panel2"]
 layout_mode = 0
 offset_left = 215.0
 offset_top = 45.0
-offset_right = 340.0
+offset_right = 538.0
 offset_bottom = 76.0
-text = "test"
 
 [node name="CJMatchButton" type="Button" parent="CanvasLayer/Panel2"]
 layout_mode = 0
-offset_left = 230.0
-offset_top = 116.0
-offset_right = 325.0
-offset_bottom = 147.0
-text = "Create/Join
+offset_left = 101.0
+offset_top = 98.0
+offset_right = 196.0
+offset_bottom = 129.0
+text = "Create
 "
 
 [node name="StartButton" type="Button" parent="CanvasLayer/Panel2"]
@@ -143,6 +142,15 @@ offset_bottom = 200.0
 text = "Host
 "
 
+[node name="JoinButton" type="Button" parent="CanvasLayer/Panel2"]
+layout_mode = 0
+offset_left = 230.0
+offset_top = 97.0
+offset_right = 268.0
+offset_bottom = 128.0
+text = "Join
+"
+
 [connection signal="pressed" from="CanvasLayer/Panel/LoginButton" to="." method="_on_login_button_pressed"]
 [connection signal="pressed" from="CanvasLayer/Panel/LoginTest1Button" to="." method="_on_login_test_1_button_pressed"]
 [connection signal="pressed" from="CanvasLayer/Panel/LoginTest2Button" to="." method="_on_login_test_2_button_pressed"]
@@ -150,3 +158,4 @@ text = "Host
 [connection signal="pressed" from="CanvasLayer/Panel2/CJMatchButton" to="." method="_on_cj_match_button_pressed"]
 [connection signal="pressed" from="CanvasLayer/Panel2/StartButton" to="." method="_on_start_button_pressed"]
 [connection signal="pressed" from="CanvasLayer/Panel2/HostButton" to="." method="_on_host_button_pressed"]
+[connection signal="pressed" from="CanvasLayer/Panel2/JoinButton" to="." method="_on_join_button_pressed"]
