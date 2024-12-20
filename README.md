@@ -228,5 +228,5 @@ cd project-name
 
 ---
 
-For questions or suggestions, please open an [Issue](https://github.com/your-repo/project-name/issues).  
-如有问题或建议，请提交 [Issue](https://github.com/your-repo/project-name/issues)。
+For questions or suggestions, please open an [Issue](https://github.com/galaxy8691/godot-nakama-learn-godot-dedicated/project-name/issues).  
+如有问题或建议，请提交 [Issue](https://github.com/galaxy8691/godot-nakama-learn-godot-dedicated/issues)。
