@@ -8,6 +8,10 @@ This project is an advanced multiplayer game development tutorial built upon and
 
 Additionally, the project now integrates Nakama's automatic server distribution functionality. Users only need to join the game, and Nakama will automatically find an idle server and assign it to matches ready to begin, simplifying server management and matchmaking processes.
 
+## Using as a Template
+
+You can use the code in this project as a template to create your own game. In future updates, we will thoroughly comment the Godot part of the code and clean up the incomplete `multiplayer_bridge` sections to make the Godot codebase clearer and easier to understand.
+
 ## Features
 
 - **Native Godot Multiplayer Support**
@@ -110,6 +114,10 @@ cd project-name
 本项目是一个基于 FinePointCGI 的 YouTube 教程进行构建和优化的高级多人游戏开发教程。与原始教程不同，我们放弃了使用 `multiplayer_bridge` 作为服务器与客户端之间的连接方式，转而采用 Godot 引擎自带的 `multiplayer` 模块。这一改进使得游戏能够使用 UDP 协议进行通信，提升了网络传输的效率和稳定性，同时避免了依赖 Nakama 的 WebSocket 连接。
 
 此外，项目现在集成了 Nakama 的自动分发服务器功能。用户只需加入游戏，Nakama 将自动查找空闲服务器，并将其分配到准备开始的比赛，简化了服务器管理和匹配流程。
+
+## 使用模板
+
+您可以使用本项目的代码作为模板来制作您自己的游戏。后续我们将对 Godot 部分的代码进行详细注释，并清理未完成的 `multiplayer_bridge` 相关部分，使 Godot 代码库更加清晰易懂。
 
 ## 功能特点
 
