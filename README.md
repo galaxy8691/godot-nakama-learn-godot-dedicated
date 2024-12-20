@@ -109,7 +109,7 @@ This project is licensed under the MIT License. See [LICENSE.md](LICENSE.md) for
 
 ## Acknowledgments
 
-- Special thanks to [FinePointCGI](https://www.youtube.com/channel/UCxyz) for providing excellent tutorials that inspired this project.
+- Special thanks to [FinePointCGI](https://www.youtube.com/@FinePointCGI) for providing excellent tutorials that inspired this project.
 
 ---
 
@@ -224,7 +224,7 @@ cd project-name
 
 ## 致谢
 
-特别感谢 [FinePointCGI](https://www.youtube.com/channel/UCxyz) 提供的优秀教程，为本项目提供了宝贵的指导和灵感。
+特别感谢 [FinePointCGI](https://www.youtube.com/@FinePointCGI) 提供的优秀教程，为本项目提供了宝贵的指导和灵感。
 
 ---
 
