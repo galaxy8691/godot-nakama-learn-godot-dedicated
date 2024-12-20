@@ -53,10 +53,28 @@ func _ready() -> void:
 				timer.wait_time = 1.0
 				timer.one_shot = false
 				timer.timeout.connect(func():
-					var matches = await client.list_matches_async(session, 0,10,10,false,"","")
-					#print("matches: ", matches)
+					var resulta = await client.rpc_async(session, "tellNakamaIamAServer", json)
+					print("resulta: ", resulta)
 				)
 				timer.start()
+				var job_timer = Timer.new()
+				job_timer.autostart = true
+				add_child(job_timer)
+				job_timer.wait_time = 5.0
+				job_timer.one_shot = false
+				job_timer.timeout.connect(func():
+					var job_result = await client.rpc_async(session, "rpcGetJob", "{}")
+					var job_result_json = JSON.parse_string(job_result.payload)
+					if job_result_json.job != null:
+						
+						match_id = job_result_json.job.matchId
+						print("match id: ", match_id)
+						var resultx = await socket.join_match_async(match_id)
+						print("result: ", resultx)
+						job_timer.stop()
+					
+				)
+				job_timer.start()
 				
 				
 
