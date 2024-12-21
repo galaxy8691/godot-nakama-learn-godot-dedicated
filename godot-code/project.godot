@@ -19,6 +19,7 @@ config/icon="res://icon.svg"
 
 Nakama="*res://addons/com.heroiclabs.nakama/Nakama.gd"
 PlayerManager="*res://player_manager.gd"
+OpCodes="*res://op_codes.gd"
 
 [display]
 

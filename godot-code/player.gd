@@ -17,7 +17,7 @@ func _physics_process(delta: float) -> void:
 		if Input.is_action_pressed("right"):
 			nv.x += 1
 		nv = nv.normalized()
-		request_sync_move_vector.rpc_id(PlayerManager.get_host_peer_id(), nv)
+		#request_sync_move_vector.rpc_id(PlayerManager.get_host_peer_id(), nv)
 	if is_multiplayer_authority():
 		#print("syncing position")
 		sync_position.rpc(global_position)

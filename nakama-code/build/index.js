@@ -92,6 +92,14 @@ var serverGetJob = function (ctx, logger, nk, payload) {
     }
     return JSON.stringify({ job: null }); // 如果没有任务，返回null (If no jobs, return null)
 };
+// 游戏状态接口 (Game State Interface)
+var OpCode;
+(function (OpCode) {
+    OpCode[OpCode["PlayerReady"] = 0] = "PlayerReady";
+    OpCode[OpCode["PlayerNotReady"] = 1] = "PlayerNotReady";
+    OpCode[OpCode["GetAllPresences"] = 2] = "GetAllPresences";
+    OpCode[OpCode["GetServerInfo"] = 3] = "GetServerInfo";
+})(OpCode || (OpCode = {}));
 // 匹配初始化，设置初始游戏状态 (Match Initialization, setting initial game state)
 var matchInit = function (ctx, logger, nk, params) {
     var state = {
@@ -137,6 +145,7 @@ var matchJoin = function (ctx, logger, nk, dispatcher, tick, state, presences) {
             state.presences[presence.userId] = {
                 presence: presence,
                 playerState: PlayerState.NotReady,
+                peerId: -1,
             };
             logger.info("Player joined: ".concat(presence.userId));
         }
@@ -188,6 +197,8 @@ var matchLoop = function (ctx, logger, nk, dispatcher, tick, state, messages) {
                 else {
                     // 标记比赛为已开始 (Mark match as started)
                     state.matchState = MatchState.GameStarted;
+                    dispatcher.broadcastMessage(2, "GameStarted", null, null);
+                    logger.info("Match started: ".concat(ctx.matchId));
                 }
             }
         }
@@ -217,13 +228,25 @@ var matchSignal = function (ctx, logger, nk, dispatcher, tick, state, data) {
 // 处理游戏消息 (Handle game messages)
 var processGameMessage = function (ctx, logger, nk, dispatcher, tick, state, messages) {
     messages.forEach(function (message) {
-        var stringData = nk.binaryToString(message.data); // 将二进制数据转换为字符串 (Convert binary data to string)
-        var data = JSON.parse(stringData); // 解析JSON数据 (Parse JSON data)
-        if (data.state === "start") {
-            // 如果收到开始信号，标记玩家为已准备 (If start signal received, mark player as ready)
+        if (message.opCode === OpCode.PlayerReady) {
             state.presences[message.sender.userId].playerState = PlayerState.Ready;
         }
-        logger.info("Received ".concat(stringData, " from ").concat(message.sender.userId));
+        if (message.opCode === OpCode.PlayerNotReady) {
+            state.presences[message.sender.userId].playerState = PlayerState.NotReady;
+        }
+        if (message.opCode === OpCode.GetAllPresences) {
+            var presences = {
+                presences: [],
+            };
+            for (var _i = 0, _a = Object.keys(state.presences); _i < _a.length; _i++) {
+                var key = _a[_i];
+                logger.info("Presence!!!: ".concat(key));
+                logger.info("peerId!!!: ", state.presences[key]);
+                var p = { userId: key, peerId: state.presences[key].peerId };
+                presences.presences.push(p);
+            }
+            dispatcher.broadcastMessage(OpCode.GetAllPresences, nk.stringToBinary(JSON.stringify(presences)));
+        }
     });
     return { state: state };
 };

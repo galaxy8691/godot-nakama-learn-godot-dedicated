@@ -1,34 +1,50 @@
 extends Node
 
 
-var players : Array[int] = []
-var my_peer_id : int = -1
-var host_peer_id : int = -1
+var players : Dictionary = {}
+var my_user_id: String = ""
+var host_user_id: String = ""
 
-func add_player(peer_id : int) -> void:
-	players.append(peer_id)
-	players.sort()
+func add_player(user_id : String, peer_id : int) -> void:
+	print("add player: ", user_id, " ", peer_id)
+	print("b4 add: ", players)
+	if not players.has(user_id):
+		players[user_id] = peer_id
+	print("all players: ", players)
 
-func remove_player(peer_id : int) -> void:
-	players.erase(peer_id)
-	players.sort()
+func remove_player(user_id : String) -> void:
+	players.erase(user_id)
+
+func set_player_peer_id(user_id : String, peer_id : int) -> void:
+	players[user_id] = peer_id
+
+func get_player_peer_id(user_id : String) -> int:
+	return players[user_id]
+
 func get_player_count() -> int:
-	if host_peer_id == -1:
-		return players.size()
-	else:
-		return players.size() + 1
+	var count = 0
+	for player in players:
+		if player != host_user_id:
+			count += 1
+	return count
 
-func set_my_peer_id(peer_id : int) -> void:
-	my_peer_id = peer_id
+func set_my_user_id(user_id : String) -> void:
+	my_user_id = user_id
 
 func get_my_peer_id() -> int:
-	return my_peer_id
+	if not players.has(my_user_id):
+		return 1
+	return players[my_user_id]
 
-func set_host_peer_id(peer_id : int) -> void:
-	host_peer_id = peer_id
-	if players.has(peer_id):
-		players.erase(peer_id)
-	players.sort()
+func set_host_user_id(user_id: String) -> void:
+	host_user_id = user_id
+	if not players.has(user_id):
+		players[user_id] = -1
+
+func get_host_user_id() -> String:
+	return host_user_id
 
 func get_host_peer_id() -> int:
-	return host_peer_id
+	if not players.has(host_user_id):
+		return 1
+	return players[host_user_id]

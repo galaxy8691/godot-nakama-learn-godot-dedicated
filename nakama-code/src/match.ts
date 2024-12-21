@@ -1,9 +1,16 @@
 // 游戏状态接口 (Game State Interface)
+enum OpCode {
+  PlayerReady = 0,
+  PlayerNotReady = 1,
+  GetAllPresences = 2,
+  GetServerInfo = 3,
+}
 interface GameState {
   presences: {
     [userId: string]: {
       presence: nkruntime.Presence;
       playerState: PlayerState;
+      peerId: number;
     };
   };
   server: { serverId: string; presence: nkruntime.Presence | null };
@@ -88,6 +95,7 @@ const matchJoin = (
       state.presences[presence.userId] = {
         presence,
         playerState: PlayerState.NotReady,
+        peerId: -1,
       };
       logger.info(`Player joined: ${presence.userId}`);
     } else {
@@ -174,6 +182,8 @@ const matchLoop = (
         } else {
           // 标记比赛为已开始 (Mark match as started)
           state.matchState = MatchState.GameStarted;
+          dispatcher.broadcastMessage(2, "GameStarted", null, null);
+          logger.info(`Match started: ${ctx.matchId}`);
         }
       }
     }
@@ -234,15 +244,27 @@ const processGameMessage = (
   messages: nkruntime.MatchMessage[]
 ): { state: GameState } | null => {
   messages.forEach((message) => {
-    const stringData = nk.binaryToString(message.data); // 将二进制数据转换为字符串 (Convert binary data to string)
-    const data = JSON.parse(stringData); // 解析JSON数据 (Parse JSON data)
-
-    if (data.state === "start") {
-      // 如果收到开始信号，标记玩家为已准备 (If start signal received, mark player as ready)
+    if (message.opCode === OpCode.PlayerReady) {
       state.presences[message.sender.userId].playerState = PlayerState.Ready;
     }
-
-    logger.info(`Received ${stringData} from ${message.sender.userId}`);
+    if (message.opCode === OpCode.PlayerNotReady) {
+      state.presences[message.sender.userId].playerState = PlayerState.NotReady;
+    }
+    if (message.opCode === OpCode.GetAllPresences) {
+      const presences: { presences: { userId: string; peerId: number }[] } = {
+        presences: [],
+      };
+      for (const key of Object.keys(state.presences)) {
+        logger.info(`Presence!!!: ${key}`);
+        logger.info("peerId!!!: ", state.presences[key]);
+        const p = { userId: key, peerId: state.presences[key].peerId };
+        presences.presences.push(p);
+      }
+      dispatcher.broadcastMessage(
+        OpCode.GetAllPresences,
+        nk.stringToBinary(JSON.stringify(presences))
+      );
+    }
   });
 
   return { state };
