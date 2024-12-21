@@ -170,48 +170,6 @@ var matchLeave = function (ctx, logger, nk, dispatcher, tick, state, presences) 
     }
     return { state: state };
 };
-// 匹配循环，每个tick执行一次 (Match loop, executes once per tick)
-var matchLoop = function (ctx, logger, nk, dispatcher, tick, state, messages) {
-    if (messages.length > 0) {
-        // 处理收到的消息 (Handle received messages)
-        var result = processGameMessage(ctx, logger, nk, dispatcher, tick, state, messages);
-        state = (result === null || result === void 0 ? void 0 : result.state) || state;
-    }
-    if (state.matchState !== MatchState.GameStarted) {
-        // 如果游戏尚未开始 (If game has not started)
-        if (state.matchState === MatchState.WaitingForPlayers &&
-            Object.keys(state.presences).length >= state.minPlayers) {
-            // 如果有足够的玩家 (If there are enough players)
-            if (isAllPlayersReady(state)) {
-                if (state.server.serverId === "") {
-                    // 如果没有分配服务器 (If no server assigned)
-                    if (state.preAssignedServerId === "") {
-                        // 获取一个可用的服务器 (Get an available server)
-                        var preAssignedServerId = getAvailableServer(nk, ctx.matchId, logger);
-                        if (preAssignedServerId !== "") {
-                            logger.info("Pre-assigned server: ".concat(preAssignedServerId));
-                            state.preAssignedServerId = preAssignedServerId;
-                        }
-                    }
-                }
-                else {
-                    // 标记比赛为已开始 (Mark match as started)
-                    state.matchState = MatchState.GameStarted;
-                    dispatcher.broadcastMessage(2, "GameStarted", null, null);
-                    logger.info("Match started: ".concat(ctx.matchId));
-                }
-            }
-        }
-    }
-    else {
-        // 游戏进行中的逻辑可以在这里添加 (Logic for ongoing game can be added here)
-    }
-    return { state: state };
-};
-// 检查所有玩家是否都已准备 (Check if all players are ready)
-function isAllPlayersReady(state) {
-    return Object.keys(state.presences).every(function (key) { return state.presences[key].playerState === PlayerState.Ready; });
-}
 // 终止匹配时的处理 (Handling when terminating the match)
 var matchTerminate = function (ctx, logger, nk, dispatcher, tick, state, graceSeconds) {
     logger.debug("Lobby match terminated");
@@ -224,6 +182,60 @@ var matchTerminate = function (ctx, logger, nk, dispatcher, tick, state, graceSe
 var matchSignal = function (ctx, logger, nk, dispatcher, tick, state, data) {
     logger.debug("Lobby match signal received: ".concat(data));
     return { state: state, data: "Lobby match signal received: ".concat(data) };
+};
+// 比赛结束后重置服务器状态 (Reset server state after match ends)
+var resetServerAfterMatchEnd = function (nk, state) {
+    var servers = nk.storageRead([
+        { collection: "servers", key: state.server.serverId, userId: SYSTEM_ID },
+    ]);
+    if (servers.length > 0) {
+        var server = servers[0];
+        nk.storageWrite([
+            {
+                collection: "servers",
+                key: server.key,
+                userId: SYSTEM_ID,
+                value: {
+                    serverId: server.key,
+                    ip: server.value.ip,
+                    port: server.value.port,
+                    state: ServerState.Ready, // 重新标记为准备状态 (Re-mark as ready)
+                    heartbeat: new Date().toISOString(), // 更新心跳时间 (Update heartbeat time)
+                },
+            },
+        ]);
+    }
+};
+// 服务器状态枚举 (Server State Enumeration)
+var ServerState;
+(function (ServerState) {
+    ServerState[ServerState["Ready"] = 0] = "Ready";
+    ServerState[ServerState["InUse"] = 1] = "InUse";
+})(ServerState || (ServerState = {}));
+// 比赛状态枚举 (Match State Enumeration)
+var MatchState;
+(function (MatchState) {
+    MatchState[MatchState["WaitingForPlayers"] = 0] = "WaitingForPlayers";
+    MatchState[MatchState["GameStarted"] = 2] = "GameStarted";
+    MatchState[MatchState["GameEnded"] = 3] = "GameEnded";
+})(MatchState || (MatchState = {}));
+// 玩家状态枚举 (Player State Enumeration)
+var PlayerState;
+(function (PlayerState) {
+    PlayerState[PlayerState["Ready"] = 0] = "Ready";
+    PlayerState[PlayerState["NotReady"] = 1] = "NotReady";
+})(PlayerState || (PlayerState = {}));
+// 系统ID常量，用于标识系统操作 (System ID constant for system operations)
+var SYSTEM_ID = "00000000-0000-0000-0000-000000000000";
+// 匹配循环，每个tick执行一次 (Match loop, executes once per tick)
+var matchLoop = function (ctx, logger, nk, dispatcher, tick, state, messages) {
+    if (messages.length > 0) {
+        // 处理收到的消息 (Handle received messages)
+        var result = processGameMessage(ctx, logger, nk, dispatcher, tick, state, messages);
+        state = (result === null || result === void 0 ? void 0 : result.state) || state;
+    }
+    state = manageGameState(ctx, logger, nk, dispatcher, state);
+    return { state: state };
 };
 // 处理游戏消息 (Handle game messages)
 var processGameMessage = function (ctx, logger, nk, dispatcher, tick, state, messages) {
@@ -250,6 +262,46 @@ var processGameMessage = function (ctx, logger, nk, dispatcher, tick, state, mes
     });
     return { state: state };
 };
+function manageGameState(ctx, logger, nk, dispatcher, state) {
+    if (state.matchState !== MatchState.GameStarted) {
+        state = runWaitingState(ctx, logger, nk, dispatcher, state);
+    }
+    else {
+        // 游戏进行中的逻辑可以在这里添加 (Logic for ongoing game can be added here)
+    }
+    return state;
+}
+function runWaitingState(ctx, logger, nk, dispatcher, state) {
+    // 如果游戏尚未开始 (If game has not started)
+    if (state.matchState === MatchState.WaitingForPlayers &&
+        Object.keys(state.presences).length >= state.minPlayers) {
+        // 如果有足够的玩家 (If there are enough players)
+        if (isAllPlayersReady(state)) {
+            if (state.server.serverId === "") {
+                // 如果没有分配服务器 (If no server assigned)
+                if (state.preAssignedServerId === "") {
+                    // 获取一个可用的服务器 (Get an available server)
+                    var preAssignedServerId = getAvailableServer(nk, ctx.matchId, logger);
+                    if (preAssignedServerId !== "") {
+                        logger.info("Pre-assigned server: ".concat(preAssignedServerId));
+                        state.preAssignedServerId = preAssignedServerId;
+                    }
+                }
+            }
+            else {
+                // 标记比赛为已开始 (Mark match as started)
+                state.matchState = MatchState.GameStarted;
+                dispatcher.broadcastMessage(2, "GameStarted", null, null);
+                logger.info("Match started: ".concat(ctx.matchId));
+            }
+        }
+    }
+    return state;
+}
+// 检查所有玩家是否都已准备 (Check if all players are ready)
+function isAllPlayersReady(state) {
+    return Object.keys(state.presences).every(function (key) { return state.presences[key].playerState === PlayerState.Ready; });
+}
 // 获取一个可用的服务器 (Get an available server)
 var getAvailableServer = function (nk, matchId, logger) {
     var servers = nk.storageList(SYSTEM_ID, "servers"); // 列出服务器列表 (List server list)
@@ -300,47 +352,3 @@ var createServerJob = function (nk, serverId, matchId) {
         },
     ]);
 };
-// 比赛结束后重置服务器状态 (Reset server state after match ends)
-var resetServerAfterMatchEnd = function (nk, state) {
-    var servers = nk.storageRead([
-        { collection: "servers", key: state.server.serverId, userId: SYSTEM_ID },
-    ]);
-    if (servers.length > 0) {
-        var server = servers[0];
-        nk.storageWrite([
-            {
-                collection: "servers",
-                key: server.key,
-                userId: SYSTEM_ID,
-                value: {
-                    serverId: server.key,
-                    ip: server.value.ip,
-                    port: server.value.port,
-                    state: ServerState.Ready, // 重新标记为准备状态 (Re-mark as ready)
-                    heartbeat: new Date().toISOString(), // 更新心跳时间 (Update heartbeat time)
-                },
-            },
-        ]);
-    }
-};
-// 服务器状态枚举 (Server State Enumeration)
-var ServerState;
-(function (ServerState) {
-    ServerState[ServerState["Ready"] = 0] = "Ready";
-    ServerState[ServerState["InUse"] = 1] = "InUse";
-})(ServerState || (ServerState = {}));
-// 比赛状态枚举 (Match State Enumeration)
-var MatchState;
-(function (MatchState) {
-    MatchState[MatchState["WaitingForPlayers"] = 0] = "WaitingForPlayers";
-    MatchState[MatchState["GameStarted"] = 2] = "GameStarted";
-    MatchState[MatchState["GameEnded"] = 3] = "GameEnded";
-})(MatchState || (MatchState = {}));
-// 玩家状态枚举 (Player State Enumeration)
-var PlayerState;
-(function (PlayerState) {
-    PlayerState[PlayerState["Ready"] = 0] = "Ready";
-    PlayerState[PlayerState["NotReady"] = 1] = "NotReady";
-})(PlayerState || (PlayerState = {}));
-// 系统ID常量，用于标识系统操作 (System ID constant for system operations)
-var SYSTEM_ID = "00000000-0000-0000-0000-000000000000";

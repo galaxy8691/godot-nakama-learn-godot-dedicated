@@ -1,5 +1,10 @@
 {
-  "files": ["./src/main.ts", "./src/match.ts", "./src/constants.ts"],
+  "files": [
+    "./src/main.ts",
+    "./src/match.ts",
+    "./src/constants.ts",
+    "./src/matchLoop.ts"
+  ],
 
   "compilerOptions": {
     "target": "es5",
